@@ -39,4 +39,4 @@ jobs:
         echo "  ProxyCommand cloudflared access ssh --hostname %h" >> ~/.ssh/config
 
         # Eksekusi (Pake sshpass buat login password)
-        sshpass -p "$ss_pass" ssh deploy-target "cd /var/www/html/ci-cd-html && echo 'Login Sukses' && git pull origin main https://github.com/didiferdillah23/ci-cd-html.git --rebase"        
+        sshpass -p "$ss_pass" ssh deploy-target "cd /var/www/html/ci-cd-html && echo 'Login Sukses' && git pull origin main https://github.com/didiferdillah23/coba-ci-cd.git --rebase"        
