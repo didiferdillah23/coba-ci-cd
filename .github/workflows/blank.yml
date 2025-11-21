@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the files
+      uses: actions/checkout@v4
+
+    # 1. Install Cloudflared & SSHPASS
+    - name: Install Dependencies
+      run: |
+        curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+        sudo dpkg -i cloudflared.deb
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+
+    # 2. Deploy Script (Tanpa Service Token)
+    - name: Deploy via Cloudflare Tunnel
+      env:
+        ss_pass: docker123 
+        HOST: ssh-docker-proxmox.kaputama.ac.id
+        USER: root
+        
+      run: |
+        # Config SSH Sederhana
+        mkdir -p ~/.ssh
+        echo "Host deploy-target" >> ~/.ssh/config
+        echo "  HostName $HOST" >> ~/.ssh/config
+        echo "  User $USER" >> ~/.ssh/config
+        echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+        # ProxyCommand TANPA ID & Secret
+        echo "  ProxyCommand cloudflared access ssh --hostname %h" >> ~/.ssh/config
+
+        # Eksekusi (Pake sshpass buat login password)
+        sshpass -p "$ss_pass" ssh deploy-target "cd /var/www/html/ci-cd-html && echo 'Login Sukses' && git pull origin main https://github.com/didiferdillah23/ci-cd-html.git --rebase"        
